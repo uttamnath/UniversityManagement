@@ -1,0 +1,59 @@
+﻿@{
+    ViewBag.Title = "UnassignCourse";
+}
+<link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
+<form style="padding: 10%" method="POST" id="myForm">
+    <div class="form-group">
+        <fieldset align="center">
+            <legend>Unassign All Courses</legend>
+            <input type="button" value="Unassign Courses" id="unassignbtn" class="btn btn-default"/>
+        </fieldset>
+    </div>
+
+    @if (ViewBag.Unassign != null)
+    {
+        <label class="label-success">@ViewBag.Unassign</label>
+    }
+
+</form>
+<div id="dialog-confirm" title=" Confirm Unassign!">
+    <p id="pId"><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Are you sure to unassign all courses?</p>
+</div>
+
+@section scripts
+{
+    <script src="~/Scripts/jquery-ui-1.12.1.js"></script>
+<script>
+    $(document).ready(function () {
+
+
+        $("#pId").hide();
+  
+        $("#unassignbtn").click(function () {
+                        $(function () {
+                            $("#pId").show();
+                            $("#dialog-confirm").dialog({
+                                resizable: false,
+                                height: "auto",
+                                width: 400,
+                                modal: true,
+                                buttons: {
+                                    "Yes": function () {
+                                        $("#myForm").submit();
+                                        $(this).dialog("close");
+                                    },
+                                    "No": function () {
+                                      
+                                        $(this).dialog("close");
+
+                                    }
+                                }
+                            });
+                        });                                                
+        });
+
+    });
+
+</script>
+
+}

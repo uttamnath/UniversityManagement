@@ -1,0 +1,173 @@
+﻿@using AW_UniversityManagementMvcApp.Models
+@using AW_UniversityManagementMvcApp.Models.Entity_Models
+@model AW_UniversityManagementMvcApp.Models.View_Models.ResultVM
+
+@{
+    ViewBag.Title = "SaveStudentResult";
+}
+<style>
+    label.error {
+        color: red;
+        font-style: italic;
+    }
+</style>
+
+<h2>Save Student Result</h2>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @id = "saveResultForm" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        @Html.ValidationSummary(true)
+        @if (ViewBag.Message != null)
+        {
+            <label class="label-success">@ViewBag.Message</label>
+        }
+        <div class="form-group">
+            @Html.LabelFor(model => model.RegId, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+
+                <select class="form-control" id="Id" name="Id">
+                    <option value="">--Select--</option>
+                    @foreach (Student student in ViewBag.Students)
+                    {
+                        <option value="@student.Id">@student.RegNo</option>
+                    }
+                </select>
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.StudentName, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.StudentName, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.StudentName)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Email, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.Email, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Email)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.DepartmentName, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.DepartmentName, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.DepartmentName)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.CourseCode, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @*@Html.DropDownListFor(model => model.CourseCode, new SelectList(ViewBag.Courses, "Id", "Code"), "--Select--","")
+                    @Html.ValidationMessageFor(model => model.CourseCode)*@
+                <select class="form-control" id="CourseId" name="CourseId">
+
+                    @*@foreach (Course course in ViewBag.Courses)
+                        {
+                            <option value="@course.Id">@course.Code</option>
+                        }*@
+                </select>
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Grade, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.Grade, new SelectList(ViewBag.Results, "GradeId", "GradeResult"), "--Select--")
+                @Html.ValidationMessageFor(model => model.Grade)
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
+@section scripts
+{
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/jquery.validate.js"></script>
+
+    <script>
+
+        $("#saveResultForm").validate({
+            rules: {
+                Id: "required",
+                Grade: "required",
+                CourseId: "required",
+
+
+            },
+            messages: {
+                Id: "Please Select Student Reg. No.",
+                Grade: "Please Select a Grade",
+                CourseId: "Please Select a Course"
+
+
+            }
+        });
+
+    </script>
+
+
+
+
+
+    <script>
+        $(document).ready(function () {
+            $("#Id").change(function () {
+                var deptId = $("#Id").val();
+                $("#StudentName").empty();
+                $("#Email").empty();
+                $("#DepartmentName").empty();
+                $("#CourseId").empty();
+                $("#CourseId").append('<option value="">Select</option>');
+                var json = { Id: deptId };
+                $.ajax({
+                    type: "POST",
+                    url: '/Result/GetStudentsById',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(json),
+                    success: function (data) {
+                        //$.each(data, function (key, value) {
+                        $("#StudentName").val(data.Name);
+                        $("#Email").val(data.Email);
+                        $("#DepartmentName").val(data.DepartmentCode);
+
+                        //});
+                    }
+                });
+
+                $.ajax({
+                    type: "POST",
+                    url: '/Result/GetEnrolledCoursesById',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(json),
+                    success: function (data) {
+                        $.each(data, function (key, value) {
+                            $('#CourseId').append('<option value="' + value.Id + '">' + value.Code + '</option>');
+
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,269 @@
+﻿@using AW_UniversityManagementMvcApp.Models.View_Models
+@model AW_UniversityManagementMvcApp.Models.View_Models.CourseAssignVM
+
+@{
+    ViewBag.Title = "AssignTeacher";
+    
+    
+}
+<link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
+<style>
+    label.error{
+        color: red;
+        font-style: italic;
+    }
+    
+</style>
+<h2>Assign Teacher</h2>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @id = "AssignTeacherForm" })) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+      
+        <hr />
+        @Html.ValidationSummary(true)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.DepartmentID, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <select name="DepartmentID" id="DepartmentID">
+                    <option value="">Select...</option>
+                    @foreach (var department in ViewBag.department)
+                    {
+                        <option value="@department.Id">@department.Name</option>
+                    }
+                </select>
+                @Html.ValidationMessageFor(model => model.DepartmentID)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.TeacherID, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <select name="TeacherID" id="TeacherID"></select>
+               
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.CreditToBeTaken, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.CreditToBeTaken, new { @class = "form-control" })
+               
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.RemainingCredit, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.RemainingCredit, new { @class = "form-control" })
+              
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.CourseID, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <select name="CourseID" id="CourseID"></select>
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Name)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Credit, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.Credit, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Credit)
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Assign" id="assignButton"class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+<div id="dialog-confirm" title="Credit Limit Out of Range!">
+    <p id="pId"><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Remaining Credit is lower than the credit of the course you want to assign. Do you still want to assign?</p>
+</div>
+@if (ViewBag.Message != null)
+{
+    <label class="label-success">@ViewBag.Message</label>
+}
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+<script src="~/Scripts/jquery-3.1.1.js"></script>
+<script src="~/Scripts/jquery.validate.js"></script>
+<script>
+    
+    $("#AssignTeacherForm").validate({
+        rules: {
+            DepartmentID: "required",
+            TeacherID: "required",
+            CourseID: "required",
+
+              
+        },
+        messages: {
+            DepartmentID: "Please Select Department",
+            TeacherID: "Please Select a Teacher",
+            CourseID: "Please Select a Course"
+               
+
+        }
+    });
+
+</script>
+@section scripts
+{
+
+<script src="~/Scripts/jquery-ui-1.12.1.js"></script>
+    <script>
+        $(document).ready(function () {
+
+
+            $("#pId").hide();
+           
+            $("#DepartmentID").change(function () {
+                var deptId = $("#DepartmentID").val();
+                $("#CourseID").empty();
+                
+                $("#TeacherID").empty();
+                $("#CourseID").append('<option value="">Select</option>');
+                $("#TeacherID").append('<option value="">Select</option>');
+                var json = { departmentId: deptId };
+                $.ajax({
+                    type: "POST",
+                   
+                    url: '/Teacher/GetTeachersByDepartmentId',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(json),
+                    success: function (data) {
+                      //  alert(data);
+                        $.each(data, function (key, value) {
+                            //alert(key);
+                            $("#TeacherID").append('<option value="' + value.Id + '">' + value.Name + '</option>');
+                            
+                        });
+                    }
+                });
+                $.ajax({
+                    type: "POST",
+
+                    url: '/Course/GetAllCourseByDeptId',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(json),
+                    success: function (data) {
+                        //  alert(data);
+                        $.each(data, function (key, value) {
+                            //alert(key);
+                            $("#CourseID").append('<option value="' + value.Id + '">' + value.Code + '</option>');
+
+                        });
+                    }
+                });
+
+
+
+
+            });
+        
+            $("#TeacherID").change(function () {
+                var teachId = $("#TeacherID").val();
+                
+                $("#CreditToBeTaken").empty();
+                $("#RemainingCredit").empty();
+                var json = { teacherId: teachId };
+                $.ajax({
+                    type: "POST",
+                    url: '/Teacher/GetTeacherInfoByTeacherId',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(json),
+                    success: function (data) {
+                   
+                        $("#CreditToBeTaken").val(data.CreditToBeTaken);
+                        $("#RemainingCredit").val(data.RemainingCredit);
+                       
+                    }
+                });
+            });
+            $("#CourseID").change(function () {
+                var courhId = $("#CourseID").val();
+                var rCredit = Number(parseFloat($("#RemainingCredit").val()).toFixed(2));
+
+                $("#Name").empty();
+                $("#Credit").empty();
+                var json = { courseId: courhId };
+                $.ajax({
+                    type: "POST",
+                    url: '/Course/GetaCourseByCourseId',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(json),
+                    success: function (data) {
+                        // alert(data);
+                        $("#Name").val(data.Name);
+                        $("#Credit").val(data.Credit);
+                        var credit = Number(parseFloat($("#Credit").val()).toFixed(2));
+                        
+
+                        if (rCredit < credit) {
+                            $(function () {
+                                $("#pId").show();
+                                $("#dialog-confirm").dialog({
+                                    resizable: false,
+                                    height: "auto",
+                                    width: 400,
+                                    modal: true,
+                                    buttons: {
+                                        "Confirm": function () {
+                                            $(this).dialog("close");
+                                        },
+                                        Cancel: function () {
+                                            $("#CourseID").val("");
+                                            $("#Name").val("");
+                                            $("#Credit").val("");
+                                            $(this).dialog("close");
+
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                    }
+                });
+            });
+            
+        });
+
+
+
+        //$("#assignButton").on("click", function (ev) {
+        //    ev.preventDefault();
+
+        //    dialog.dialog("open");
+
+        //    dialog.find(".btnConfirm").on("click", function(){
+        //        // trigger click under different namespace so 
+        //        // click handler will not be triggered but native
+        //        // functionality is preserved
+        //        $("#assignButton").trigger("click.confirmed");
+        //    });
+        //    dialog.find(".btnCancel").on("click", function(){
+        //        dialog.dialog("close");
+        //    });
+        //});
+    
+    </script>
+}

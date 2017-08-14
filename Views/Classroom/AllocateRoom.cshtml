@@ -1,0 +1,133 @@
+﻿@model AW_UniversityManagementMvcApp.Models.View_Models.RoomAllocationVM
+@{
+    ViewBag.Title = "Allocate Room";
+}
+<link href="~/Content/jquery.timepicker.css" rel="stylesheet"/>
+<style>
+    label.error {
+        color: red;
+        font-style: italic;
+    }
+</style>
+<h2>Allocate Room</h2>
+
+@if (ViewBag.Message != null)
+{
+    <label class="label-success">@ViewBag.Message</label>
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @id = "roomAllocationForm", @style = "padding: 5%" }))
+{    
+    <div class="form-horizontal">
+        <div class="form-group">
+            @Html.LabelFor(x => x.DepartmentId, new {@class = "control-label col-sm-2"})
+            <div class="col-sm-10">
+                @Html.DropDownListFor(x => x.DepartmentId, new SelectList(ViewBag.department, "Id", "Name"),"--select--","")
+                @Html.ValidationMessageFor(x => x.DepartmentId)
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(x => x.CourseId, new {@class = "control-label col-sm-2"})
+            <div class="col-sm-10">
+                <select name="CourseId" id="CourseId"></select>
+                @Html.ValidationMessageFor(x => x.CourseId)
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(x => x.RoomId, new {@class = "control-label col-sm-2"})
+            <div class="col-sm-10">
+                @Html.DropDownListFor(x => x.RoomId, new SelectList(ViewBag.rooms, "Id", "RoomNo"), "--select--", "")
+                @Html.ValidationMessageFor(x => x.RoomId)
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(x => x.Day, new {@class = "control-label col-sm-2"})
+            <div class="col-sm-10">
+                @Html.DropDownListFor(x => x.Day, new SelectList(ViewBag.days, "Value", "Text"))
+                @Html.ValidationMessageFor(x => x.Day)
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(x => x.FromTime, new {@class = "control-label col-sm-2"})
+            <div class="col-sm-10">
+                @Html.TextBoxFor(x => x.FromTime, new {@class = "form-control",id="fromTimeField", placeholder = "From"})
+                @Html.ValidationMessageFor(x => x.FromTime)
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(x => x.ToTime, new {@class = "control-label col-sm-2"})
+            <div class="col-sm-10">
+                @Html.TextBoxFor(x => x.ToTime, new {@class = "form-control", id = "toTimeField", placeholder = "To"})
+                @Html.ValidationMessageFor(x => x.ToTime)
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-default">Allocate</button>
+            </div>
+        </div>
+    </div>
+    
+}
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Scripts/jquery-3.1.1.js"></script>
+<script src="~/Scripts/jquery.validate.js"></script>
+<script src="~/Scripts/jquery.timepicker.js"></script>
+<script>
+
+    $("#roomAllocationForm").validate({
+        rules: {
+            DepartmentId: "required",
+            RoomId: "required",
+            CourseId: "required",
+            Day: "required",
+            FromTime: "required",
+            ToTime: "required"
+
+
+
+        },
+        messages: {
+            DepartmentId: "Please Select Department",
+            RoomId: "Please Select a Room",
+            CourseId: "Please Select a Course",
+            Day: "Please Select a Course",
+            FromTime: "Please enter class start time",
+            ToTime: "Please enter class start time"
+
+
+
+        }
+    });
+
+</script>
+
+<script>
+
+    $('#fromTimeField').timepicker();
+
+    $('#toTimeField').timepicker();
+
+    $("#DepartmentId").change(function () {
+        var deptId = $("#DepartmentId").val();
+
+        $("#CourseId").empty();
+        $("#CourseId").append('<option value="">Select</option>');
+        var json = { departmentId: deptId };
+        $.ajax({
+            type: "POST",
+
+            url: '/Classroom/GetCoursesByDepartment',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(json),
+            success: function (data) {
+                //alert(data);
+                $.each(data, function (key, value) {
+                    //alert(key);
+                    $("#CourseId").append('<option value="' + value.Id + '">' + value.Name + '</option>');
+
+                });
+            }
+        });
+    });
+</script>

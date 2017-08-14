@@ -1,0 +1,40 @@
+﻿@using AW_UniversityManagementMvcApp.Models
+@using AW_UniversityManagementMvcApp.Models.Entity_Models
+@{
+    ViewBag.Title = "Show Last Save";
+    Student aStudent = ViewBag.Student;
+}
+<link href="~/Content/bootstrap.css" rel="stylesheet" />
+<h2>Student Info</h2>
+<table class="table table-bordered table-striped">
+
+    <tbody>
+        <tr>
+            <td><label for="Name">Student Name</label></td>
+            <td>@aStudent.Name</td>
+        </tr>
+        <tr>
+            <td><label for="Email">Email</label></td>
+            <td>@aStudent.Email</td>
+        </tr>
+        <tr>
+            <td><label for="ContactNo">Contact No.</label></td>
+            <td>@aStudent.ContactNo</td>
+        </tr>
+        <tr>
+            <td><label for="Date">Date</label></td>
+            <td>@aStudent.Date</td>
+        </tr>
+        <tr>
+            <td><label for="Department">Department</label></td>
+            <td>@ViewBag.Department</td>
+        </tr>
+        <tr>
+            <td><label for="RegNo">RegNo</label></td>
+            <td>@aStudent.RegNo</td>
+    </tbody>
+</table>
+
+<div>
+    @Html.ActionLink("Back to Save", "RegisterStudent")
+</div>

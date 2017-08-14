@@ -1,0 +1,189 @@
+﻿@using AW_UniversityManagementMvcApp.Models
+@using AW_UniversityManagementMvcApp.Models.Entity_Models
+@model AW_UniversityManagementMvcApp.Models.Entity_Models.CourseEnroll
+
+@{
+    ViewBag.Title = "Courses Enroll";
+}
+<link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
+<style>
+    label.error {
+        color: red;
+        font-style: italic;
+    }
+</style>
+<h2>Course Enroll</h2>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @id = "CourseEnrollForm" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        <hr/>
+        @Html.ValidationSummary(true)
+
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="StudentId">Student Reg. No.</label>
+            <div class="col-sm-10">
+                <select class="form-control" id="StudentId" name="StudentId">
+                    <option value="">--select--</option>
+                    @foreach (var allStudentRegNo in ViewBag.allStudentRegNo)
+                    {
+                        <option value="@allStudentRegNo.RegNo">@allStudentRegNo.RegNo</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.StudentName, new {@class = "control-label col-md-2"})
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.StudentName, new {@class = "form-control", placeholder = "Student Name"})
+                @Html.ValidationMessageFor(model => model.StudentName)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Email, new {@class = "control-label col-md-2"})
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.Email, new {@class = "form-control", placeholder = "Email"})
+                @Html.ValidationMessageFor(model => model.Email)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.DepartmentName, new {@class = "control-label col-md-2"})
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.DepartmentName, new {@class = "form-control", placeholder = "Department Name"})
+                @Html.ValidationMessageFor(model => model.DepartmentName)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.CourseId, new {@class = "control-label col-md-2"})
+            <div class="col-md-10">
+                <select name="CourseID" id="CourseID"></select>
+
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(x => x.Date, new {@class = "control-label col-sm-2"})
+            <div class="col-sm-10">
+                @Html.TextBoxFor(model => model.Date, new {@class = "form-control", placeholder = "Date"})
+                @Html.ValidationMessageFor(m => m.Date)
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Enroll" class="btn btn-default"/>
+            </div>
+        </div>
+    </div>
+    
+}
+@if (ViewBag.Message != null)
+{
+    <label class="label-success">@ViewBag.Message</label>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@*<script src="~/Scripts/jquery-3.1.1.js"></script>*@
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Scripts/jquery-ui-1.12.1.js"></script>
+<script src="~/Scripts/jquery.validate.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+
+<script>
+
+    $("#CourseEnrollForm").validate({
+        rules: {
+            StudentId: "required",
+            Date: "required",
+            CourseID: "required"
+
+
+        },
+        messages: {
+            StudentId: "Please Select a Student",
+            Date: "Please Select a Date",
+            CourseID: "Please Select a Course"
+
+
+        }
+    });
+
+</script>
+
+<script>
+   
+    $("#Date").datepicker({
+        dateFormat: 'yy-mm-dd',
+        yearRange: "1920:2020",
+        changeMonth: true,
+        changeYear: true
+    });
+    //$(document).ready(function () {
+
+    $("#StudentId").change(function () {
+        var stId = $("#StudentId").val();
+
+        $("#StudentName").empty();
+        $("#Email").empty();
+        $("#DepartmentName").empty();
+        $("#CourseID").empty();
+        $("#CourseID").append('<option value="">Select</option>');
+        var json = { studentId: stId };
+        $.ajax({
+            type: "POST",
+            url: '/Student/GetStudentInfoByStudentId',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(json),
+            success: function (data) {
+
+                $("#StudentName").val(data.StudentName);
+                $("#Email").val(data.Email);
+                $("#DepartmentName").val(data.DepartmentName);
+               
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: '/Student/GetDeptWiseCourses',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(json),
+            success: function (data) {
+                
+                
+                $.each(data, function (key, value) {
+                    //alert(key);
+                    $("#CourseID").append('<option value="' + value.Id + '">' + value.Name + '</option>');
+
+                });
+            }
+        });
+    });
+
+       
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

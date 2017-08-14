@@ -1,0 +1,77 @@
+﻿@using System.Web.UI.WebControls
+@using AW_UniversityManagementMvcApp.Models.Entity_Models
+@using AW_UniversityManagementMvcApp.Models.View_Models
+@{
+    ViewBag.Title = "ViewCourseStat";
+    List<Department> aDepartment = ViewBag.department;
+    //List<CourseStatVM> aCourseStatVMList = ViewBag.department;
+}
+
+
+<h2>View Course Statics </h2>
+<form method="POST" id="myForm">
+    
+     
+            <label for="departmentId">Department</label>
+      
+    
+            <select name="departmentId" id="departmentId">
+                <option value="">...Select...</option>
+                @foreach (var department in ViewBag.Department)
+                {
+                    <option value="@department.Id">@department.Name</option>
+                }
+            </select>
+      
+    <h4>Course Information </h4>
+    
+</form>
+<table id="viewCourseStateTable" class="table table-bordered table-hover table-striped">
+    <thead>
+    <tr>
+
+        <th>Code</th>
+        <th>Name/Title</th>
+        <th>Semester</th>
+        <th>Assign To</th>
+
+    </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+</table>
+@section scripts
+{
+    <script src="~/Scripts/DataTables/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready(function () {
+            var table = $("#viewCourseStateTable").DataTable();
+            $("#departmentId").change(function () {
+                var deptId = $("#departmentId").val();
+                $("#viewCourseStateTable").show();
+                table.clear().draw(false);
+                //$("#tableBody").empty();
+                //$("#studentId").empty();
+                //$("#studentId").append('<option value="">Select</option>');
+                var json = { departmentId: deptId };
+                $.ajax({
+                    type: "POST",
+                 
+                    url: '/Course/ViewCourseStatByDept',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(json),
+                    success: function (data) {
+                        //alert(data);
+                        $.each(data, function (key, value) {
+                            //alert(key);
+                           // $("#studentId").append('<option value="' + value.StudentId + '">' + value.Name + '</option>');
+                            //$("#tableBody").append('<tr><td>' + value.StudentId + '</td><td>' + value.Name + '</td><td>' + value.DepartmentId + '</td></tr>');
+                            table.row.add([
+                                value.Code, value.Name, value.Semester, value.AssignTo
+                            ]).draw(false);
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

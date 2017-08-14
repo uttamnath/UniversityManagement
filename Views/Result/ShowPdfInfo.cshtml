@@ -1,0 +1,57 @@
+﻿@using AW_UniversityManagementMvcApp.Models
+@using AW_UniversityManagementMvcApp.Models.View_Models
+@{
+    ViewBag.Title = "Result Sheet";
+    Student student = ViewBag.Student;
+
+
+    List<CourseResultVM> results = ViewBag.result;
+}
+
+<h2>Result Sheet</h2>
+
+<table class="table table-bordered table-striped">
+
+    <tbody>
+        <tr>
+            <td><label>RegNo</label></td>
+            <td>@student.RegNo</td>
+        </tr>
+        <tr>
+            <td><label for="Name">Student Name</label></td>
+            <td>@student.Name</td>
+        </tr>
+        <tr>
+            <td><label for="Email">Email</label></td>
+            <td>@student.Email</td>
+        </tr>
+        <tr>
+            <td><label for="Department">Department</label></td>
+            <td>@student.DepartmentCode</td>
+        </tr>
+    </tbody>
+</table>
+<table id="myTable" class="table table-bordered table-hover table-striped">
+    <thead>
+        <tr>
+            <th>Course Code</th>
+            <th>Name</th>
+            <th>Grade</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody">
+        @if (results != null)
+        {
+            foreach (var courseResult in results)
+            {
+                <tr>
+                    <td>@courseResult.CourseCode</td>
+                    <td>@courseResult.CourseName</td>
+                    <td>@courseResult.Result</td>
+                </tr>
+            }
+
+        }
+
+    </tbody>
+</table>

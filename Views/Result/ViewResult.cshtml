@@ -1,0 +1,151 @@
+﻿@using AW_UniversityManagementMvcApp.Models
+@using AW_UniversityManagementMvcApp.Models.Entity_Models
+@using AW_UniversityManagementMvcApp.Models.View_Models
+@model AW_UniversityManagementMvcApp.Models.View_Models.ResultVM
+@{
+    ViewBag.Title = "ViewResult";
+    ResultVM resultVm = ViewBag.Result;
+
+}
+
+<h2>View Result</h2>
+<form method="POST">
+    <div class="form-horizontal">
+        <div class="form-group">
+            @Html.LabelFor(model => model.RegId, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+
+                <select class="form-control" id="Id" name="Id">
+                    <option value="">--Select--</option>
+                    @foreach (Student student in ViewBag.Students)
+                    {
+                        <option value="@student.Id">@student.RegNo</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.StudentName, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.StudentName)
+                @Html.ValidationMessageFor(model => model.StudentName)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Email, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Email)
+                @Html.ValidationMessageFor(model => model.Email)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.DepartmentName, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.DepartmentName)
+                @Html.ValidationMessageFor(model => model.DepartmentName)
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Make PDF" class="btn btn-default"/>
+                @*<input type="button" value="Make PDF" class="btn btn-default" onclick="window.location.href = '@Url.Action("GeneratePdf", "Result")';" />*@
+            </div>
+        </div>
+    </div>
+
+</form>
+
+<table id="myTable" class="table table-bordered table-hover table-striped">
+    <thead>
+        <tr>
+            <th>Course Code</th>
+            <th>Name</th>
+            <th>Grade</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+</table>
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Scripts/jquery.validate.js"></script>
+<script>
+    $("#AssignTeacherForm").validate({
+        rules: {
+            Id: "required"
+        },
+        messages: {
+            Id: "Please Select Student"
+        }
+    });
+</script>
+@section scripts
+{
+    
+
+    
+    <script>
+        $(document).ready(function () {
+            $("#myTable").hide();
+            $("#Id").change(function () {
+                var deptId = $("#Id").val();
+                
+                $("#StudentName").empty();
+                $("#Email").empty();
+                $("#DepartmentName").empty();
+               
+
+
+                $("#myTable").show();
+                $("#tableBody").empty();
+
+                var json = { Id: deptId };
+                $.ajax({
+                    type: "POST",
+                    url: '/Result/GetStudentsById',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(json),
+                    success: function (data) {
+                        //$.each(data, function (key, value) {
+                        $("#StudentName").val(data.Name);
+                        $("#Email").val(data.Email);
+                        $("#DepartmentName").val(data.DepartmentCode);
+
+                        //});
+                    }
+                });
+
+                //$.ajax({
+                //    type: "POST",
+                //    url: '/Result/GetEnrolledCoursesById',
+                //    contentType: "application/json; charset=utf-8",
+                //    data: JSON.stringify(json),
+                //    success: function (data) {
+                //        $.each(data, function (key, value) {
+                //            $('#CourseId').append('<option value="' + value.Id + '">' + value.Code + '</option>');
+
+                //        });
+                //    }
+                //});
+
+                $.ajax({
+                    type: "POST",
+                    url: '/Result/ShowResultById',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(json),
+                    success: function(data) {
+                        $.each(data, function(key, value) {
+
+                            $("#tableBody").append('<tr><td>' + value.CourseCode + '</td><td>' + value.CourseName + '</td><td>' + value.Result + '</td></tr>');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+          
+
+

@@ -1,0 +1,25 @@
+﻿@using AW_UniversityManagementMvcApp.Models.Entity_Models
+
+@{
+    ViewBag.Title = "View All Departments";
+    List<Department> departments = ViewBag.department;
+}
+<h2>View All Departments</h2>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Department dept in departments)
+        {
+            <tr>
+                <td>@dept.Code</td>
+                <td>@dept.Name</td>
+            </tr>
+        }        
+    </tbody>
+</table>

@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace AW_UniversityManagementMvcApp.Models.View_Models
+{
+    public class TeacherVM
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public decimal CreditToBeTaken { get; set; }
+        public decimal RemainingCredit { get; set; }
+        
+    }
+}
